@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
 return (
 <main
@@ -18,7 +20,9 @@ justifyContent: "center",
 marginTop: "30px",
 }}
 >
+<Link href="/join-team">
 <button>Join Team</button>
+</Link>
 
 <button>Quiz Master</button>
 </div>
