@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 type CardProps = {
@@ -15,6 +16,24 @@ export function Card({ title, value, description }: CardProps) {
         <p className="mt-1 text-sm text-foreground/50">{description}</p>
       ) : null}
     </div>
+  );
+}
+
+type NavCardProps = {
+  title: string;
+  description: string;
+  href: string;
+};
+
+export function NavCard({ title, description, href }: NavCardProps) {
+  return (
+    <Link
+      href={href}
+      className="rounded-xl border border-foreground/10 bg-foreground/[0.03] p-6 transition-colors hover:border-foreground/20 hover:bg-foreground/[0.06]"
+    >
+      <p className="text-lg font-semibold">{title}</p>
+      <p className="mt-2 text-sm text-foreground/60">{description}</p>
+    </Link>
   );
 }
 

@@ -1,11 +1,10 @@
+import { AdminShell } from "@/src/components/admin/AdminShell";
+
 export default function AdminLoading() {
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-4xl flex-col px-6 py-12">
+    <AdminShell title="Admin Dashboard" description="Loading dashboard...">
       <div className="animate-pulse">
-        <div className="h-9 w-32 rounded bg-foreground/10" />
-        <div className="mt-2 h-5 w-72 max-w-full rounded bg-foreground/10" />
-
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
@@ -17,6 +16,6 @@ export default function AdminLoading() {
           ))}
         </div>
       </div>
-    </main>
+    </AdminShell>
   );
 }

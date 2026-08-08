@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariant = "primary" | "secondary";
+type ButtonVariant = "primary" | "secondary" | "danger";
 
 type ButtonProps = {
   children: ReactNode;
@@ -16,6 +16,8 @@ const variantClasses: Record<ButtonVariant, string> = {
     "bg-foreground text-background hover:opacity-90 disabled:opacity-50",
   secondary:
     "border border-foreground/20 bg-transparent hover:bg-foreground/5 disabled:opacity-50",
+  danger:
+    "bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600",
 };
 
 const baseClasses =

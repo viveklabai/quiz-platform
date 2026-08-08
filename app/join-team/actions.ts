@@ -22,7 +22,7 @@ export async function joinTeam(
 
   const { data: team, error: teamError } = await supabase
     .from("teams")
-    .select("id")
+    .select("id, active")
     .eq("join_code", trimmedCode)
     .maybeSingle();
 
@@ -37,6 +37,13 @@ export async function joinTeam(
     return {
       success: false,
       error: "Team not found. Check your team code and try again.",
+    };
+  }
+
+  if (team.active === false) {
+    return {
+      success: false,
+      error: "Team is currently disabled. Contact the Quiz Master.",
     };
   }
 

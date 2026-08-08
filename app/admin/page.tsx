@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { Button } from "@/src/components/ui/Button";
-import { Card, CardGrid } from "@/src/components/ui/Card";
+import { AdminShell } from "@/src/components/admin/AdminShell";
+import { Card, CardGrid, NavCard } from "@/src/components/ui/Card";
 import { supabase } from "@/src/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -27,31 +26,36 @@ export default async function AdminPage() {
   const stats = await getAdminStats();
 
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-4xl flex-col px-6 py-12">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Admin</h1>
-          <p className="mt-2 text-foreground/60">
-            Overview of quizzes, teams, and questions.
-          </p>
-        </div>
-        <Button href="/" variant="secondary">
-          Back to Home
-        </Button>
-      </div>
-
+    <AdminShell
+      title="Admin Dashboard"
+      description="Overview of quizzes, teams, and questions."
+    >
       <CardGrid>
-        <Card title="Total Quizzes" value={stats.quizCount} />
-        <Card title="Total Teams" value={stats.teamCount} />
-        <Card title="Total Questions" value={stats.questionCount} />
+        <Card title="Quiz Count" value={stats.quizCount} />
+        <Card title="Team Count" value={stats.teamCount} />
+        <Card title="Question Count" value={stats.questionCount} />
       </CardGrid>
 
-      <p className="mt-8 text-sm text-foreground/50">
-        Need to join a team?{" "}
-        <Link href="/join-team" className="underline underline-offset-4">
-          Go to Join Team
-        </Link>
-      </p>
-    </main>
+      <div className="mt-10">
+        <h2 className="text-lg font-semibold">Quick Links</h2>
+        <CardGrid>
+          <NavCard
+            title="Manage Quizzes"
+            description="Create quizzes and view the full quiz list."
+            href="/admin/quizzes"
+          />
+          <NavCard
+            title="Live Control"
+            description="Open and close the active quiz question."
+            href="/admin/live"
+          />
+          <NavCard
+            title="Manage Teams"
+            description="View teams, member counts, and enable or disable access."
+            href="/admin/teams"
+          />
+        </CardGrid>
+      </div>
+    </AdminShell>
   );
 }
