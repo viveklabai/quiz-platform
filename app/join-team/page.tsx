@@ -1,20 +1,49 @@
 export default function JoinTeamPage() {
 return (
-<main style={{ padding: "40px" }}>
+<main
+style={{
+padding: "40px",
+maxWidth: "500px",
+margin: "0 auto",
+}}
+>
 <h1>Join Team</h1>
 
 <div style={{ marginTop: "20px" }}>
-<p>Display Name</p>
-<input type="text" />
+<label>Display Name</label>
+<br />
+<input
+type="text"
+style={{
+width: "100%",
+padding: "10px",
+marginTop: "5px",
+}}
+/>
 </div>
 
 <div style={{ marginTop: "20px" }}>
-<p>Team Code</p>
-<input type="text" />
+<label>Team Code</label>
+<br />
+<input
+type="text"
+style={{
+width: "100%",
+padding: "10px",
+marginTop: "5px",
+}}
+/>
 </div>
 
 <div style={{ marginTop: "20px" }}>
-<button>Join Team</button>
+<button
+style={{
+padding: "10px 20px",
+
+}}
+>
+Join Team
+</button>
 </div>
 </main>
 );
