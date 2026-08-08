@@ -1,50 +1,22 @@
+import { Button } from "@/src/components/ui/Button";
+import { JoinTeamForm } from "./join-team-form";
+
 export default function JoinTeamPage() {
-return (
-<main
-style={{
-padding: "40px",
-maxWidth: "500px",
-margin: "0 auto",
-}}
->
-<h1>Join Team</h1>
+  return (
+    <main className="mx-auto flex min-h-full w-full max-w-lg flex-col px-6 py-12">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">Join Team</h1>
+          <p className="mt-2 text-foreground/60">
+            Enter your display name and team code to join.
+          </p>
+        </div>
+        <Button href="/" variant="secondary">
+          Back to Home
+        </Button>
+      </div>
 
-<div style={{ marginTop: "20px" }}>
-<label>Display Name</label>
-<br />
-<input
-type="text"
-style={{
-width: "100%",
-padding: "10px",
-marginTop: "5px",
-}}
-/>
-</div>
-
-<div style={{ marginTop: "20px" }}>
-<label>Team Code</label>
-<br />
-<input
-type="text"
-style={{
-width: "100%",
-padding: "10px",
-marginTop: "5px",
-}}
-/>
-</div>
-
-<div style={{ marginTop: "20px" }}>
-<button
-style={{
-padding: "10px 20px",
-
-}}
->
-Join Team
-</button>
-</div>
-</main>
-);
+      <JoinTeamForm />
+    </main>
+  );
 }
