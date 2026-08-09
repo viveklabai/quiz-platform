@@ -1,18 +1,24 @@
 import { AdminShell } from "@/src/components/admin/AdminShell";
-import { getLiveQuestion } from "./actions";
+import { getLiveControlData } from "./actions";
 import { LiveControl } from "./live-control";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminLivePage() {
-  const liveQuestion = await getLiveQuestion();
+type AdminLivePageProps = PageProps<"/admin/live">;
+
+export default async function AdminLivePage({ searchParams }: AdminLivePageProps) {
+  const params = await searchParams;
+  const questionId =
+    typeof params.questionId === "string" ? params.questionId : undefined;
+
+  const data = await getLiveControlData(questionId);
 
   return (
     <AdminShell
       title="Live Control"
-      description="Open and close the active quiz question."
+      description="Navigate questions and control the active live question."
     >
-      <LiveControl liveQuestion={liveQuestion} />
+      <LiveControl data={data} />
     </AdminShell>
   );
 }

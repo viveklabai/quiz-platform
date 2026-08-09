@@ -7,6 +7,7 @@ const adminLinks = [
   { href: "/admin/quizzes", label: "Manage Quizzes" },
   { href: "/admin/live", label: "Live Control" },
   { href: "/admin/teams", label: "Manage Teams" },
+  { href: "/admin/submissions", label: "Submissions" },
 ] as const;
 
 type AdminShellProps = {

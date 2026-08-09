@@ -12,6 +12,7 @@ export default function Home() {
 
       <div className="mt-10 flex flex-col gap-3 sm:flex-row">
         <Button href="/join-team">Join Team</Button>
+	<Button href="/player">Player</Button>
         <Button href="/admin" variant="secondary">
           Admin
         </Button>

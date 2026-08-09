@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { supabase } from "@/src/lib/supabase";
 
 export type JoinTeamResult =
@@ -58,6 +59,13 @@ export async function joinTeam(
       error: memberError.message || "Could not join the team. Please try again.",
     };
   }
+
+  const cookieStore = await cookies();
+  cookieStore.set("quiz_team_id", team.id, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+  });
 
   return {
     success: true,

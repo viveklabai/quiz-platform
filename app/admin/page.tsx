@@ -54,6 +54,11 @@ export default async function AdminPage() {
             description="View teams, member counts, and enable or disable access."
             href="/admin/teams"
           />
+          <NavCard
+            title="Submissions"
+            description="Review team answers, submission counts, and timestamps."
+            href="/admin/submissions"
+          />
         </CardGrid>
       </div>
     </AdminShell>
