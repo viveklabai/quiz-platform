@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { syncTeamScoreSummary } from "@/src/lib/score-summaries";
 import { supabase } from "@/src/lib/supabase";
 import {
   GRADING_OPTIONS,
@@ -190,7 +191,7 @@ export async function gradeSubmission(
 
   const { data: submission, error: submissionError } = await supabase
     .from("submissions")
-    .select("id")
+    .select("id, team_id")
     .eq("id", submissionId)
     .maybeSingle();
 
@@ -252,7 +253,10 @@ export async function gradeSubmission(
     }
   }
 
+  await syncTeamScoreSummary(submission.team_id);
+
   revalidatePath("/admin/submissions");
+  revalidatePath("/leaderboard");
 
   return {
     success: true,

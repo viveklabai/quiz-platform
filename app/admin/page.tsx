@@ -59,6 +59,11 @@ export default async function AdminPage() {
             description="Review team answers, submission counts, and timestamps."
             href="/admin/submissions"
           />
+          <NavCard
+            title="Leaderboard"
+            description="View team rankings and total scores."
+            href="/leaderboard"
+          />
         </CardGrid>
       </div>
     </AdminShell>

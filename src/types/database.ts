@@ -125,3 +125,27 @@ export const GRADING_OPTIONS: GradingOption[] = [
   { key: "one_third", label: "One Third Correct", multiplier: 0.3333 },
   { key: "incorrect", label: "Incorrect", multiplier: 0 },
 ];
+
+export type ScoreSummary = {
+  team_id: string;
+  quiz_id: string;
+  total_score: number;
+  questions_graded: number;
+  updated_at?: string;
+};
+
+export type LeaderboardEntry = {
+  teamId: string;
+  teamName: string;
+  totalScore: number;
+};
+
+export type LeaderboardRow = LeaderboardEntry & {
+  rank: number;
+};
+
+export type LeaderboardData = {
+  entries: LeaderboardRow[];
+  totalTeams: number;
+  highestScore: number;
+};
