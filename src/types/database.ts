@@ -3,7 +3,49 @@ export type QuestionStatus = "OPEN" | "CLOSED" | "NOT_STARTED";
 export type Quiz = {
   id: string;
   name: string;
+  max_question_score: number;
+  min_question_score: number;
+  question_duration_seconds: number;
+  archived?: boolean;
   created_at?: string;
+};
+
+export type RoundWithQuestions = {
+  id: string;
+  quiz_id: string;
+  name: string;
+  order_index?: number;
+  created_at?: string;
+  questionCount: number;
+  questions: Question[];
+};
+
+export type QuizSetup = {
+  quiz: Quiz;
+  rounds: RoundWithQuestions[];
+};
+
+export type TeamAdminRow = TeamWithMemberCount & {
+  submissionCount: number;
+  totalScore: number;
+};
+
+export type ResultsData = {
+  currentQuestion: string | null;
+  timeRemainingSeconds: number | null;
+  totalTeams: number;
+  totalSubmissions: number;
+  totalGraded: number;
+  ungradedCount: number;
+  highestScore: number;
+  topTeams: LeaderboardRow[];
+  recentSubmissions: SubmissionReviewRow[];
+  recentGrades: Array<{
+    teamName: string;
+    questionNumber: number;
+    awardedScore: number;
+    gradedAt: string;
+  }>;
 };
 
 export type Round = {
@@ -19,6 +61,7 @@ export type Question = {
   round_id: string;
   question_number: number;
   status: QuestionStatus;
+  opened_at?: string | null;
   order_index?: number;
   created_at?: string;
 };
@@ -70,6 +113,8 @@ export type Submission = {
   team_id: string;
   current_answer: string;
   submission_count: number;
+  /** Persisted team-specific available score at last submission time. */
+  maximum_score_available?: number;
   first_submitted_at?: string;
   latest_submitted_at: string;
 };
@@ -80,6 +125,10 @@ export type PlayerQuestion = {
   status: string;
   quizName: string;
   roundName: string;
+  openedAt: string | null;
+  maxQuestionScore: number;
+  minQuestionScore: number;
+  questionDurationSeconds: number;
 };
 
 export type SubmissionReviewRow = {
@@ -89,6 +138,8 @@ export type SubmissionReviewRow = {
   questionNumber: number;
   currentAnswer: string;
   submissionCount: number;
+  /** Team-specific available score locked in at last submission. */
+  availableScore: number | null;
   latestSubmittedAt: string;
   grade: SubmissionGrade | null;
 };
@@ -102,6 +153,9 @@ export type Grade = {
   id: string;
   submission_id: string;
   grading_multiplier: number;
+  /** Snapshot of submission available score used when grading. */
+  time_based_max_score?: number;
+  /** Final points from stored available score and grading multiplier. */
   awarded_score: number;
   graded_at: string;
 };
@@ -117,6 +171,12 @@ export type GradingOption = {
   key: "correct" | "half" | "one_third" | "incorrect";
   label: string;
   multiplier: number;
+};
+
+export const QUIZ_SCORING_DEFAULTS = {
+  maxQuestionScore: 100,
+  minQuestionScore: 0,
+  questionDurationSeconds: 60,
 };
 
 export const GRADING_OPTIONS: GradingOption[] = [

@@ -40,8 +40,13 @@ export default async function AdminPage() {
         <h2 className="text-lg font-semibold">Quick Links</h2>
         <CardGrid>
           <NavCard
+            title="Control Center"
+            description="Live overview, top teams, and recent activity."
+            href="/admin/results"
+          />
+          <NavCard
             title="Manage Quizzes"
-            description="Create quizzes and view the full quiz list."
+            description="Create quizzes, rounds, questions, and scoring settings."
             href="/admin/quizzes"
           />
           <NavCard
@@ -51,13 +56,18 @@ export default async function AdminPage() {
           />
           <NavCard
             title="Manage Teams"
-            description="View teams, member counts, and enable or disable access."
+            description="Create teams, join codes, members, and access."
             href="/admin/teams"
           />
           <NavCard
             title="Submissions"
             description="Review team answers, submission counts, and timestamps."
             href="/admin/submissions"
+          />
+          <NavCard
+            title="Quiz Reset"
+            description="Start a new quiz or reset scores, grades, and submissions."
+            href="/admin/reset"
           />
           <NavCard
             title="Leaderboard"

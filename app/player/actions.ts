@@ -2,8 +2,10 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { calculateMaxScoreAvailable } from "@/src/lib/time-based-scoring";
 import { supabase } from "@/src/lib/supabase";
 import type { PlayerQuestion, Submission } from "@/src/types/database";
+import { QUIZ_SCORING_DEFAULTS } from "@/src/types/database";
 
 const TEAM_COOKIE = "quiz_team_id";
 
@@ -13,23 +15,44 @@ type SubmitAnswerResult =
       message: string;
       submission: Pick<
         Submission,
-        "current_answer" | "submission_count" | "latest_submitted_at"
+        | "current_answer"
+        | "submission_count"
+        | "latest_submitted_at"
+        | "maximum_score_available"
       >;
     }
   | { success: false; error: string };
+
+type QuizConfig = {
+  name: string;
+  max_question_score: number;
+  min_question_score: number;
+  question_duration_seconds: number;
+};
 
 type QuestionRow = {
   id: string;
   question_number: number;
   status: string;
+  opened_at: string | null;
   rounds:
-    | { name: string; quizzes: { name: string } | { name: string }[] }
-    | { name: string; quizzes: { name: string } | { name: string }[] }[];
+    | {
+        name: string;
+        quizzes: QuizConfig | QuizConfig[];
+      }
+    | {
+        name: string;
+        quizzes: QuizConfig | QuizConfig[];
+      }[];
 };
 
+function normalizeRelation<T>(value: T | T[]): T {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 function normalizeQuestionRow(row: QuestionRow): PlayerQuestion {
-  const round = Array.isArray(row.rounds) ? row.rounds[0] : row.rounds;
-  const quiz = Array.isArray(round.quizzes) ? round.quizzes[0] : round.quizzes;
+  const round = normalizeRelation(row.rounds);
+  const quiz = normalizeRelation(round.quizzes);
 
   return {
     id: row.id,
@@ -37,6 +60,14 @@ function normalizeQuestionRow(row: QuestionRow): PlayerQuestion {
     status: row.status,
     roundName: round.name,
     quizName: quiz.name,
+    openedAt: row.opened_at,
+    maxQuestionScore:
+      quiz.max_question_score ?? QUIZ_SCORING_DEFAULTS.maxQuestionScore,
+    minQuestionScore:
+      quiz.min_question_score ?? QUIZ_SCORING_DEFAULTS.minQuestionScore,
+    questionDurationSeconds:
+      quiz.question_duration_seconds ??
+      QUIZ_SCORING_DEFAULTS.questionDurationSeconds,
   };
 }
 
@@ -50,9 +81,15 @@ export async function getCurrentQuestion(): Promise<PlayerQuestion | null> {
     id,
     question_number,
     status,
+    opened_at,
     rounds!inner (
       name,
-      quizzes!inner ( name )
+      quizzes!inner (
+        name,
+        max_question_score,
+        min_question_score,
+        question_duration_seconds
+      )
     )
   `;
 
@@ -77,7 +114,7 @@ export async function getSubmission(
   const { data, error } = await supabase
     .from("submissions")
     .select(
-      "id, question_id, team_id, current_answer, submission_count, first_submitted_at, latest_submitted_at",
+      "id, question_id, team_id, current_answer, submission_count, maximum_score_available, first_submitted_at, latest_submitted_at",
     )
     .eq("question_id", questionId)
     .eq("team_id", teamId)
@@ -135,6 +172,81 @@ export async function getPlayerContext(): Promise<{
   };
 }
 
+async function getQuestionScoringContext(questionId: string) {
+  const { data, error } = await supabase
+    .from("questions")
+    .select(
+      `
+      id,
+      status,
+      opened_at,
+      rounds!inner (
+        quizzes!inner (
+          max_question_score,
+          min_question_score,
+          question_duration_seconds
+        )
+      )
+    `,
+    )
+    .eq("id", questionId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  const row = data as unknown as {
+    id: string;
+    status: string;
+    opened_at: string | null;
+    rounds:
+      | {
+          quizzes:
+            | {
+                max_question_score: number;
+                min_question_score: number;
+                question_duration_seconds: number;
+              }
+            | {
+                max_question_score: number;
+                min_question_score: number;
+                question_duration_seconds: number;
+              }[];
+        }
+      | {
+          quizzes:
+            | {
+                max_question_score: number;
+                min_question_score: number;
+                question_duration_seconds: number;
+              }
+            | {
+                max_question_score: number;
+                min_question_score: number;
+                question_duration_seconds: number;
+              }[];
+        }[];
+  };
+
+  const round = normalizeRelation(row.rounds);
+  const quiz = normalizeRelation(round.quizzes);
+
+  return {
+    status: row.status,
+    openedAt: row.opened_at,
+    config: {
+      maxQuestionScore:
+        quiz.max_question_score ?? QUIZ_SCORING_DEFAULTS.maxQuestionScore,
+      minQuestionScore:
+        quiz.min_question_score ?? QUIZ_SCORING_DEFAULTS.minQuestionScore,
+      questionDurationSeconds:
+        quiz.question_duration_seconds ??
+        QUIZ_SCORING_DEFAULTS.questionDurationSeconds,
+    },
+  };
+}
+
 export async function submitAnswer(
   questionId: string,
   answer: string,
@@ -174,25 +286,27 @@ export async function submitAnswer(
     };
   }
 
-  const { data: question, error: questionError } = await supabase
-    .from("questions")
-    .select("id, status")
-    .eq("id", questionId)
-    .maybeSingle();
+  const questionContext = await getQuestionScoringContext(questionId);
 
-  if (questionError || !question) {
+  if (!questionContext) {
     return {
       success: false,
       error: "Question not found.",
     };
   }
 
-  if (question.status !== "OPEN") {
+  if (questionContext.status !== "OPEN") {
     return {
       success: false,
       error: "This question is not open for submissions.",
     };
   }
+
+  const maximumScoreAvailable = calculateMaxScoreAvailable(
+    questionContext.openedAt,
+    questionContext.config,
+  );
+  const availableScoreAtSubmit = maximumScoreAvailable;
 
   const { data: existing, error: existingError } = await supabase
     .from("submissions")
@@ -220,9 +334,10 @@ export async function submitAnswer(
         first_submitted_at: now,
         latest_submitted_at: now,
         submission_count: 1,
+        maximum_score_available: availableScoreAtSubmit,
       })
       .select(
-        "current_answer, submission_count, latest_submitted_at",
+        "current_answer, submission_count, latest_submitted_at, maximum_score_available",
       )
       .single();
 
@@ -248,9 +363,12 @@ export async function submitAnswer(
       current_answer: trimmedAnswer,
       latest_submitted_at: now,
       submission_count: existing.submission_count + 1,
+      maximum_score_available: availableScoreAtSubmit,
     })
     .eq("id", existing.id)
-    .select("current_answer, submission_count, latest_submitted_at")
+    .select(
+      "current_answer, submission_count, latest_submitted_at, maximum_score_available",
+    )
     .single();
 
   if (updateError || !updated) {

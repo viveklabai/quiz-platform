@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { syncTeamScoreSummary } from "@/src/lib/score-summaries";
+import { calculateAwardedScore } from "@/src/lib/time-based-scoring";
 import { supabase } from "@/src/lib/supabase";
 import {
   GRADING_OPTIONS,
@@ -25,6 +26,7 @@ type SubmissionRow = {
   id: string;
   current_answer: string;
   submission_count: number;
+  maximum_score_available: number | null;
   latest_submitted_at: string;
   team_id: string;
   teams:
@@ -104,6 +106,7 @@ function mapSubmissionRow(row: SubmissionRow): SubmissionReviewRow {
     questionNumber: question.question_number,
     currentAnswer: row.current_answer,
     submissionCount: row.submission_count,
+    availableScore: row.maximum_score_available,
     latestSubmittedAt: row.latest_submitted_at,
     grade: gradeRow ? mapGradeRow(gradeRow) : null,
   };
@@ -150,6 +153,7 @@ export async function getSubmissions(
       team_id,
       current_answer,
       submission_count,
+      maximum_score_available,
       latest_submitted_at,
       teams!inner ( name ),
       questions!inner ( question_number ),
@@ -191,7 +195,7 @@ export async function gradeSubmission(
 
   const { data: submission, error: submissionError } = await supabase
     .from("submissions")
-    .select("id, team_id")
+    .select("id, team_id, maximum_score_available")
     .eq("id", submissionId)
     .maybeSingle();
 
@@ -199,11 +203,17 @@ export async function gradeSubmission(
     return { success: false, error: "Submission not found." };
   }
 
-  const gradingMultiplier = gradingOption.multiplier;
-  const timeBasedMaxScore = 100;
-  const awardedScore = Math.round(
-	timeBasedMaxScore * gradingMultiplier
-);
+  if (submission.maximum_score_available == null) {
+    return {
+      success: false,
+      error: "Submission is missing a stored available score.",
+    };
+  }
+
+  const availableScore = submission.maximum_score_available;
+  const awardedScore = calculateAwardedScore(availableScore, gradingKey);
+  const gradingMultiplier =
+    GRADING_OPTIONS.find((option) => option.key === gradingKey)?.multiplier ?? 0;
   const gradedAt = new Date().toISOString();
 
   const { data: existingGrade, error: existingError } = await supabase
@@ -224,7 +234,7 @@ export async function gradeSubmission(
       .from("grades")
       .update({
         grading_multiplier: gradingMultiplier,
-	time_based_max_score: timeBasedMaxScore,
+        time_based_max_score: availableScore,
         awarded_score: awardedScore,
         graded_at: gradedAt,
       })
@@ -240,7 +250,7 @@ export async function gradeSubmission(
     const { error: insertError } = await supabase.from("grades").insert({
       submission_id: submissionId,
       grading_multiplier: gradingMultiplier,
-      time_based_max_score: timeBasedMaxScore,
+      time_based_max_score: availableScore,
       awarded_score: awardedScore,
       graded_at: gradedAt,
     });

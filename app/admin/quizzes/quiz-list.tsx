@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { StatusBadge } from "@/src/components/ui/StatusBadge";
 import type { Quiz } from "@/src/types/database";
 
 type QuizListProps = {
@@ -22,16 +24,23 @@ export function QuizList({ quizzes }: QuizListProps) {
         {quizzes.map((quiz) => (
           <li
             key={quiz.id}
-            className="flex flex-col gap-1 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <p className="font-medium">{quiz.name}</p>
-              {quiz.created_at ? (
-                <p className="text-sm text-foreground/50">
-                  Created {new Date(quiz.created_at).toLocaleString()}
-                </p>
-              ) : null}
+              <div className="flex items-center gap-2">
+                <p className="font-medium">{quiz.name}</p>
+                {quiz.archived ? <StatusBadge label="Archived" tone="neutral" /> : null}
+              </div>
+              <p className="mt-1 text-sm text-foreground/50">
+                Start {quiz.max_question_score} · Min {quiz.min_question_score} · {quiz.question_duration_seconds}s
+              </p>
             </div>
+            <Link
+              href={`/admin/quizzes/${quiz.id}`}
+              className="text-sm font-medium underline underline-offset-4"
+            >
+              Manage Setup
+            </Link>
           </li>
         ))}
       </ul>

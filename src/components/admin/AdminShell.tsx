@@ -1,13 +1,16 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Button } from "@/src/components/ui/Button";
+import { logoutAdmin } from "@/app/admin/login/actions";
 
 const adminLinks = [
   { href: "/admin", label: "Dashboard" },
-  { href: "/admin/quizzes", label: "Manage Quizzes" },
+  { href: "/admin/results", label: "Control Center" },
+  { href: "/admin/quizzes", label: "Quizzes" },
   { href: "/admin/live", label: "Live Control" },
-  { href: "/admin/teams", label: "Manage Teams" },
+  { href: "/admin/teams", label: "Teams" },
   { href: "/admin/submissions", label: "Submissions" },
+  { href: "/admin/reset", label: "Reset" },
 ] as const;
 
 type AdminShellProps = {
@@ -26,9 +29,16 @@ export function AdminShell({ title, description, children }: AdminShellProps) {
             <p className="mt-2 text-foreground/60">{description}</p>
           ) : null}
         </div>
-        <Button href="/" variant="secondary">
-          Back to Home
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <form action={logoutAdmin}>
+            <Button type="submit" variant="secondary">
+              Logout
+            </Button>
+          </form>
+          <Button href="/" variant="secondary">
+            Back to Home
+          </Button>
+        </div>
       </div>
 
       <nav
@@ -44,6 +54,12 @@ export function AdminShell({ title, description, children }: AdminShellProps) {
             {link.label}
           </Link>
         ))}
+        <Link
+          href="/leaderboard"
+          className="rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
+        >
+          Leaderboard
+        </Link>
       </nav>
 
       <div className="mt-8">{children}</div>

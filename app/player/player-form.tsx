@@ -40,6 +40,7 @@ export function PlayerForm({ questionId, initialSubmission }: PlayerFormProps) {
         current_answer: result.submission.current_answer,
         submission_count: result.submission.submission_count,
         latest_submitted_at: result.submission.latest_submitted_at,
+        maximum_score_available: result.submission.maximum_score_available,
         first_submitted_at: current?.first_submitted_at,
       }));
     } else {
@@ -105,6 +106,12 @@ export function PlayerForm({ questionId, initialSubmission }: PlayerFormProps) {
             <div>
               <dt className="text-foreground/60">Current Submitted Answer</dt>
               <dd className="mt-1 font-medium">{submission.current_answer}</dd>
+            </div>
+            <div>
+              <dt className="text-foreground/60">Available Score at Last Submit</dt>
+              <dd className="mt-1 font-medium">
+                {submission.maximum_score_available ?? "—"}
+              </dd>
             </div>
             <div>
               <dt className="text-foreground/60">Submission Count</dt>

@@ -93,11 +93,12 @@ export function SubmissionList({ submissions }: SubmissionListProps) {
       ) : null}
 
       <section className="overflow-hidden rounded-xl border border-foreground/10">
-        <div className="hidden grid-cols-[1fr_0.6fr_1.5fr_0.5fr_1fr_0.8fr_2fr] gap-4 border-b border-foreground/10 px-6 py-3 text-sm font-medium text-foreground/60 xl:grid">
+        <div className="hidden grid-cols-[1fr_0.6fr_1.5fr_0.5fr_0.7fr_1fr_0.8fr_2fr] gap-4 border-b border-foreground/10 px-6 py-3 text-sm font-medium text-foreground/60 xl:grid">
           <span>Team Name</span>
           <span>Question</span>
           <span>Current Answer</span>
           <span>Count</span>
+          <span>Available Score</span>
           <span>Latest Submitted</span>
           <span>Grade Status</span>
           <span>Grading</span>
@@ -111,7 +112,7 @@ export function SubmissionList({ submissions }: SubmissionListProps) {
             return (
               <li
                 key={submission.id}
-                className="flex flex-col gap-4 px-6 py-4 xl:grid xl:grid-cols-[1fr_0.6fr_1.5fr_0.5fr_1fr_0.8fr_2fr] xl:items-start"
+                className="flex flex-col gap-4 px-6 py-4 xl:grid xl:grid-cols-[1fr_0.6fr_1.5fr_0.5fr_0.7fr_1fr_0.8fr_2fr] xl:items-start"
               >
                 <div>
                   <p className="font-medium">{submission.teamName}</p>
@@ -124,6 +125,9 @@ export function SubmissionList({ submissions }: SubmissionListProps) {
                 </p>
                 <p className="text-sm">{submission.currentAnswer}</p>
                 <p className="text-sm">{submission.submissionCount}</p>
+                <p className="text-sm font-medium">
+                  {submission.availableScore ?? "—"}
+                </p>
                 <p className="text-sm text-foreground/70">
                   {formatTimestamp(submission.latestSubmittedAt)}
                 </p>

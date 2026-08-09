@@ -2,6 +2,7 @@ import { Button } from "@/src/components/ui/Button";
 import { StatusBadge } from "@/src/components/ui/StatusBadge";
 import { getPlayerContext } from "./actions";
 import { PlayerForm } from "./player-form";
+import { PlayerTimer } from "./player-timer";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,8 @@ export default async function PlayerPage() {
               </div>
             </dl>
           </section>
+
+          <PlayerTimer question={context.question} />
 
           <PlayerForm
             questionId={context.question.id}

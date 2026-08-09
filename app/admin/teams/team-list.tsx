@@ -5,18 +5,16 @@ import { useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { ConfirmDialog } from "@/src/components/ui/ConfirmDialog";
 import { StatusBadge } from "@/src/components/ui/StatusBadge";
-import type { TeamWithMemberCount } from "@/src/types/database";
+import type { TeamAdminRow } from "@/src/types/database";
 import { disableTeam, enableTeam } from "./actions";
 
 type TeamListProps = {
-  teams: TeamWithMemberCount[];
+  teams: TeamAdminRow[];
 };
 
 export function TeamList({ teams }: TeamListProps) {
   const router = useRouter();
-  const [pendingTeam, setPendingTeam] = useState<TeamWithMemberCount | null>(
-    null,
-  );
+  const [pendingTeam, setPendingTeam] = useState<TeamAdminRow | null>(null);
   const [loadingTeamId, setLoadingTeamId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,11 +73,13 @@ export function TeamList({ teams }: TeamListProps) {
       ) : null}
 
       <section className="overflow-hidden rounded-xl border border-foreground/10">
-        <div className="hidden grid-cols-[1.5fr_1fr_0.8fr_0.8fr_1.4fr] gap-4 border-b border-foreground/10 px-6 py-3 text-sm font-medium text-foreground/60 lg:grid">
+        <div className="hidden grid-cols-[1.2fr_0.8fr_0.7fr_0.6fr_0.7fr_0.7fr_1.2fr] gap-4 border-b border-foreground/10 px-6 py-3 text-sm font-medium text-foreground/60 xl:grid">
           <span>Team Name</span>
-          <span>Team Code</span>
+          <span>Join Code</span>
           <span>Status</span>
           <span>Members</span>
+          <span>Submissions</span>
+          <span>Score</span>
           <span>Actions</span>
         </div>
 
@@ -90,15 +90,15 @@ export function TeamList({ teams }: TeamListProps) {
             return (
               <li
                 key={team.id}
-                className="flex flex-col gap-4 px-6 py-4 lg:grid lg:grid-cols-[1.5fr_1fr_0.8fr_0.8fr_1.4fr] lg:items-center"
+                className="flex flex-col gap-4 px-6 py-4 xl:grid xl:grid-cols-[1.2fr_0.8fr_0.7fr_0.6fr_0.7fr_0.7fr_1.2fr] xl:items-center"
               >
                 <div>
                   <p className="font-medium">{team.name}</p>
-                  <p className="mt-1 text-sm text-foreground/50 lg:hidden">
+                  <p className="mt-1 text-sm text-foreground/50 xl:hidden">
                     Code: {team.join_code}
                   </p>
                 </div>
-                <p className="hidden text-sm lg:block">{team.join_code}</p>
+                <p className="hidden text-sm xl:block">{team.join_code}</p>
                 <div>
                   <StatusBadge
                     label={team.active ? "Active" : "Disabled"}
@@ -106,6 +106,8 @@ export function TeamList({ teams }: TeamListProps) {
                   />
                 </div>
                 <p className="text-sm">{team.memberCount}</p>
+                <p className="text-sm">{team.submissionCount}</p>
+                <p className="text-sm">{team.totalScore}</p>
                 <div className="flex flex-wrap gap-2">
                   <Button href={`/admin/teams/${team.id}`} variant="secondary">
                     View Team
@@ -117,7 +119,7 @@ export function TeamList({ teams }: TeamListProps) {
                       disabled={isLoading}
                       loading={isLoading}
                     >
-                      Disable Team
+                      Disable
                     </Button>
                   ) : (
                     <Button
@@ -125,7 +127,7 @@ export function TeamList({ teams }: TeamListProps) {
                       disabled={isLoading}
                       loading={isLoading}
                     >
-                      Enable Team
+                      Enable
                     </Button>
                   )}
                 </div>

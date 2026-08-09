@@ -57,6 +57,7 @@ async function getActiveQuizId(): Promise<string | null> {
   const { data: quiz, error: quizError } = await supabase
     .from("quizzes")
     .select("id")
+    .eq("archived", false)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -192,7 +193,10 @@ export async function openQuestion(
 
   const { error: openError } = await supabase
     .from("questions")
-    .update({ status: "OPEN" })
+    .update({
+      status: "OPEN",
+      opened_at: new Date().toISOString(),
+    })
     .eq("id", questionId);
 
   if (openError) {

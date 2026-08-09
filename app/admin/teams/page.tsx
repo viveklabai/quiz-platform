@@ -1,5 +1,6 @@
 import { AdminShell } from "@/src/components/admin/AdminShell";
 import { getTeams } from "./actions";
+import { CreateTeamForm } from "./create-team-form";
 import { TeamList } from "./team-list";
 
 export const dynamic = "force-dynamic";
@@ -10,9 +11,12 @@ export default async function AdminTeamsPage() {
   return (
     <AdminShell
       title="Manage Teams"
-      description="View teams, member counts, and enable or disable access."
+      description="Create teams, manage join codes, members, and access."
     >
-      <TeamList teams={teams} />
+      <CreateTeamForm />
+      <div className="mt-8">
+        <TeamList teams={teams} />
+      </div>
     </AdminShell>
   );
 }

@@ -33,6 +33,9 @@ function normalizeGradeRelation(
   return Array.isArray(value) ? value[0] ?? null : value;
 }
 
+/**
+ * Leaderboard totals are always derived from grades.awarded_score.
+ */
 function aggregateSubmissionSummaries(
   submissions: SubmissionSummaryRow[],
 ): Map<string, TeamSummary> {
